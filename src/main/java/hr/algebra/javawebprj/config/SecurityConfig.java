@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", MvcConstants.LOGIN_PATH, "/shop/**", "/cart/**", "/cart/sse", "/register", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/health", "/", MvcConstants.LOGIN_PATH, "/shop/**", "/cart/**", "/cart/sse", "/register", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/checkout/**", "/account/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/api/auth/**").permitAll()
