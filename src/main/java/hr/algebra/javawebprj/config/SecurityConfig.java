@@ -39,6 +39,18 @@ public class SecurityConfig {
                     .httpStrictTransportSecurity(hsts -> hsts
                             .includeSubDomains(true)
                             .maxAgeInSeconds(31_536_000))
+                    // PayPal JS SDK + buttons need scripts, frames, and XHR to PayPal domains
+                    .contentSecurityPolicy(csp -> csp.policyDirectives(
+                            "default-src 'self'; "
+                                    + "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net "
+                                    + "https://www.paypal.com https://www.sandbox.paypal.com "
+                                    + "https://*.paypal.com https://*.paypalobjects.com; "
+                                    + "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net "
+                                    + "https://*.paypal.com https://*.paypalobjects.com; "
+                                    + "connect-src 'self' https://*.paypal.com https://*.paypalobjects.com; "
+                                    + "frame-src 'self' https://*.paypal.com https://www.sandbox.paypal.com; "
+                                    + "img-src 'self' data: https://*.paypal.com https://*.paypalobjects.com;"
+                    ))
             );
         }
 

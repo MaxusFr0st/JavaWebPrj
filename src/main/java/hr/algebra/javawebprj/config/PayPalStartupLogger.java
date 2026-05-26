@@ -28,7 +28,10 @@ public class PayPalStartupLogger implements CommandLineRunner {
         log.info("PayPal: client-id {} ({}), mode={}, currency={}, server SDK={}",
                 prefix, id.length(), payPalProperties.getMode(), payPalProperties.getCurrency(), serverUp ? "OK" : "MISSING");
         if (!serverUp) {
-            log.warn("PayPal: server SDK bean missing — check client-id AND client-secret; only buttons may fail.");
+            log.warn("PayPal: server SDK bean missing — check PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET on Railway, then redeploy.");
+        }
+        if (id.length() < 20) {
+            log.warn("PayPal: client-id looks too short ({} chars) — copy the full Sandbox Client ID from the PayPal Developer Dashboard.", id.length());
         }
     }
 }

@@ -68,23 +68,34 @@
 
 <th:block th:if="${paypalEnabled}">
     <script th:src="@{/js/paypal-checkout.js}"></script>
-    <script th:src="${paypalSdkUrl}"></script>
     <script th:inline="javascript">
-        (function waitForSdk(attempt) {
-            if (typeof paypal !== 'undefined' && typeof initPayPalCheckout === 'function') {
-                initPayPalCheckout();
-                return;
-            }
-            if (attempt > 100) {
+        /*<![CDATA[*/
+        (function () {
+            var sdkUrl = /*[[${paypalSdkUrl}]]*/ '';
+            function showSdkError(detail) {
                 var el = document.getElementById('paypal-result-message');
                 if (el) {
-                    el.textContent = 'PayPal SDK did not load. Open F12 → Console for errors. Verify sandbox Client ID in application.properties.';
+                    el.textContent = 'PayPal SDK did not load. ' + detail
+                        + ' Set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET in Railway (sandbox credentials), redeploy, and check deploy logs for "PayPal: client-id".';
                     el.className = 'text-danger small mt-2';
                 }
-                return;
             }
-            setTimeout(function () { waitForSdk(attempt + 1); }, 50);
-        })(0);
+            var s = document.createElement('script');
+            s.src = sdkUrl;
+            s.async = true;
+            s.onload = function () {
+                if (typeof paypal !== 'undefined' && typeof initPayPalCheckout === 'function') {
+                    initPayPalCheckout();
+                    return;
+                }
+                showSdkError('Script loaded but window.paypal is missing. Open F12 → Console. ');
+            };
+            s.onerror = function () {
+                showSdkError('Could not download the PayPal SDK (invalid Client ID or blocked by browser/CSP). Open F12 → Console. ');
+            };
+            document.head.appendChild(s);
+        })();
+        /*]]>*/
     </script>
 </th:block>
 </body>
