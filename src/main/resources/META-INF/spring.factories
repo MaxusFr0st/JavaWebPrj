@@ -1,0 +1,2 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+hr.algebra.javawebprj.config.RailwayDatabaseEnvironmentPostProcessor
