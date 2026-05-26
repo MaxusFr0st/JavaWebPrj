@@ -114,13 +114,13 @@ public class CartService {
             return;
         }
         User user = userOpt.get();
-        Optional<Cart> sessionCartOpt = cartRepository.findWithItemsBySessionId(sessionId);
+        Optional<Cart> sessionCartOpt = cartRepository.findBySessionId(sessionId);
         if (sessionCartOpt.isEmpty() || sessionCartOpt.get().getItems().isEmpty()) {
             return;
         }
 
         Cart sessionCart = sessionCartOpt.get();
-        Cart userCart = cartRepository.findWithItemsByUserId(user.getId())
+        Cart userCart = cartRepository.findByUser(user)
                 .orElseGet(() -> cartRepository.save(Cart.builder()
                         .user(user)
                         .sessionId(sessionId)
@@ -166,7 +166,7 @@ public class CartService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             User user = userRepository.findByUsername(auth.getName()).orElseThrow();
-            Optional<Cart> found = cartRepository.findWithItemsByUserId(user.getId());
+            Optional<Cart> found = cartRepository.findByUser(user);
             if (found.isPresent()) {
                 return found.get();
             }
@@ -176,7 +176,7 @@ public class CartService {
                     .items(new ArrayList<>())
                     .build());
         }
-        Optional<Cart> found = cartRepository.findWithItemsBySessionId(session.getId());
+        Optional<Cart> found = cartRepository.findBySessionId(session.getId());
         if (found.isPresent()) {
             return found.get();
         }
@@ -190,10 +190,10 @@ public class CartService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             User user = userRepository.findByUsername(auth.getName()).orElseThrow();
-            return cartRepository.findWithItemsByUserId(user.getId())
+            return cartRepository.findByUser(user)
                     .orElse(Cart.builder().sessionId(session.getId()).user(user).items(List.of()).build());
         }
-        return cartRepository.findWithItemsBySessionId(session.getId())
+        return cartRepository.findBySessionId(session.getId())
                 .orElse(Cart.builder().sessionId(session.getId()).items(List.of()).build());
     }
 

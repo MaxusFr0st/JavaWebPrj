@@ -23,7 +23,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductDto> findAllDto() {
         List<ProductDto> result = new ArrayList<>();
-        for (Product p : productRepository.findAllWithCategory()) {
+        for (Product p : productRepository.findAllByOrderByName()) {
             result.add(ProductDto.from(p));
         }
         return result;
@@ -31,24 +31,24 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<Product> findAll() {
-        return productRepository.findAllWithCategory();
+        return productRepository.findAllByOrderByName();
     }
 
     @Transactional(readOnly = true)
     public List<Product> findByCategoryId(Long categoryId) {
         categoryService.findById(categoryId);
-        return productRepository.findByCategoryId(categoryId);
+        return productRepository.findAllByCategoryIdOrderByName(categoryId);
     }
 
     @Transactional(readOnly = true)
     public Product findById(Long id) {
-        return productRepository.findWithCategoryById(id)
+        return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + id));
     }
 
     @Transactional(readOnly = true)
     public ProductDto findDtoById(Long id) {
-        Product product = productRepository.findWithCategoryById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + id));
         return ProductDto.from(product);
     }
@@ -72,7 +72,7 @@ public class ProductService {
 
     @Transactional
     public Product update(Long id, ProductForm form) {
-        Product product = productRepository.findWithCategoryById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + id));
         Category category = categoryService.findById(form.getCategoryId());
         product.setName(form.getName().trim());
@@ -89,7 +89,7 @@ public class ProductService {
 
     @Transactional
     public void delete(Long id) {
-        Product product = productRepository.findWithCategoryById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + id));
         productRepository.delete(product);
     }

@@ -73,13 +73,13 @@ public class OrderService {
     @Transactional(readOnly = true)
     public List<Order> getOrdersForCurrentUser() {
         User user = currentUser();
-        return orderRepository.findByUserWithItemsOrderByOrderDateDesc(user);
+        return orderRepository.findByUserOrderByOrderDateDesc(user);
     }
 
     @Transactional(readOnly = true)
     public Order getOrderForCurrentUser(Long orderId) {
         User user = currentUser();
-        Order order = orderRepository.findWithItemsById(orderId)
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
         if (!order.getUser().getId().equals(user.getId())) {
             throw new ResourceNotFoundException("Order not found: " + orderId);

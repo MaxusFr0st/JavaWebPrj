@@ -30,7 +30,11 @@ public class AdminOrderService {
         }
         LocalDateTime from = toStart(filter.getFromDate());
         LocalDateTime to = toEnd(filter.getToDate());
-        return orderRepository.searchAdmin(username, from, to);
+        if (username.isBlank()) {
+            return orderRepository.findByOrderDateBetweenOrderByOrderDateDesc(from, to);
+        }
+        return orderRepository.findByUserUsernameContainingIgnoreCaseAndOrderDateBetweenOrderByOrderDateDesc(
+                username, from, to);
     }
 
     @Transactional(readOnly = true)
