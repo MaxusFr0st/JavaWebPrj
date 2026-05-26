@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Admin')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<div th:replace="~{admin/fragments/nav :: admin-nav}"></div>
+
+<main class="container">
+    <h1 class="mb-4">Admin dashboard</h1>
+    <div class="row g-3">
+        <div class="col-md-3">
+            <a class="card text-decoration-none shadow-sm h-100" th:href="@{/admin/categories}">
+                <div class="card-body"><h5 class="card-title">Categories</h5><p class="text-muted mb-0">CRUD</p></div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a class="card text-decoration-none shadow-sm h-100" th:href="@{/admin/products}">
+                <div class="card-body"><h5 class="card-title">Products</h5><p class="text-muted mb-0">CRUD</p></div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a class="card text-decoration-none shadow-sm h-100" th:href="@{/admin/orders}">
+                <div class="card-body"><h5 class="card-title">Orders</h5><p class="text-muted mb-0">Search &amp; view</p></div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a class="card text-decoration-none shadow-sm h-100" th:href="@{/admin/login-audit}">
+                <div class="card-body"><h5 class="card-title">Login audit</h5><p class="text-muted mb-0">Who logged in</p></div>
+            </a>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

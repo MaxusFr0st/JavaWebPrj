@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="admin-nav" class="navbar navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/admin}">Admin</a>
+        <div class="navbar-nav flex-row gap-3">
+            <a class="nav-link" th:href="@{/admin/categories}">Categories</a>
+            <a class="nav-link" th:href="@{/admin/products}">Products</a>
+            <a class="nav-link" th:href="@{/admin/orders}">Orders</a>
+            <a class="nav-link" th:href="@{/admin/login-audit}">Login audit</a>
+            <a class="nav-link" th:href="@{/}">Shop</a>
+        </div>
+    </div>
+</nav>
+</body>
+</html>

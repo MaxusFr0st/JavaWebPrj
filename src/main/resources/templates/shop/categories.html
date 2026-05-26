@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Categories')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+
+<main class="container">
+    <h1 class="mb-4">Categories</h1>
+
+    <div th:if="${#lists.isEmpty(categories)}" class="alert alert-info">
+        No categories yet. An administrator can add them from the admin panel.
+    </div>
+
+    <div class="row g-3" th:unless="${#lists.isEmpty(categories)}">
+        <div class="col-md-6 col-lg-4" th:each="cat : ${categories}">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${cat.name}">Category</h5>
+                    <p class="card-text text-muted" th:text="${cat.description} ?: 'No description'"></p>
+                    <a class="btn btn-outline-primary"
+                       th:href="@{/shop/categories/{id}/products(id=${cat.id})}">View products</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

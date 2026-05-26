@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('My orders')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+
+<main class="container">
+    <h1 class="mb-4">My orders</h1>
+
+    <div th:if="${#lists.isEmpty(orders)}" class="alert alert-info">
+        You have not placed any orders yet.
+        <a th:href="@{/shop/categories}">Start shopping</a>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(orders)}" class="d-flex flex-column gap-3">
+        <div class="card shadow-sm" th:each="order : ${orders}">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <strong>Order #<span th:text="${order.id}">1</span></strong>
+                    <span class="text-muted ms-2"
+                          th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}">date</span>
+                </div>
+                <div>
+                    <span class="badge bg-secondary me-1" th:switch="${order.paymentMethod.name()}">
+                        <span th:case="'COD'">Cash on delivery</span>
+                        <span th:case="'PAYPAL'">PayPal</span>
+                        <span th:case="*" th:text="${order.paymentMethod}">—</span>
+                    </span>
+                    <span class="badge bg-primary"
+                          th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)} + ' €'">0 €</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead>
+                    <tr>
+                        <th class="ps-3">Product</th>
+                        <th class="text-center">Qty</th>
+                        <th class="text-end pe-3">Unit price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${order.items}">
+                        <td class="ps-3" th:text="${item.product.name}">Product</td>
+                        <td class="text-center" th:text="${item.quantity}">1</td>
+                        <td class="text-end pe-3"
+                            th:text="${#numbers.formatDecimal(item.priceAtPurchase, 1, 2)} + ' €'">0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${order.paypalOrderId}" class="card-footer text-muted small">
+                PayPal reference: <span th:text="${order.paypalOrderId}"></span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

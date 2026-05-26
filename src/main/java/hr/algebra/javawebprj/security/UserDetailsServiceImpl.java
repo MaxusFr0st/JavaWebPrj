@@ -1,4 +1,4 @@
-package hr.algebra.shopapp.security;
+package hr.algebra.javawebprj.security;
 
 import hr.algebra.javawebprj.model.User;
 import hr.algebra.javawebprj.repository.UserRepository;
@@ -19,17 +19,28 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 1. Find the user in our database
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        String login = username == null ? "" : username.trim();
+        if (login.isEmpty()) {
+            throw new UsernameNotFoundException("Empty username");
+        }
 
-        // 2. Convert our Role enum to Spring Security's GrantedAuthority
+        User user = userRepository.findByUsername(login)
+                .or(() -> userRepository.findByEmail(login))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + login));
+
+        if (user.getRole() == null) {
+            throw new UsernameNotFoundException("User has no role: " + login);
+        }
+
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().name());
 
-        // 3. Return Spring Security's internal User object
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
+                true,
+                true,
+                true,
+                true,
                 Collections.singletonList(authority)
         );
     }

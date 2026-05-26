@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Cart')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+
+<main class="container">
+    <h1 class="mb-4">Your cart</h1>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div th:if="${#lists.isEmpty(cart.lines)}" class="alert alert-info">
+        Your cart is empty. <a th:href="@{/shop/categories}">Continue shopping</a>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(cart.lines)}">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="text-end">Price</th>
+                    <th class="text-center" style="width: 140px;">Qty</th>
+                    <th class="text-end">Line total</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="line : ${cart.lines}">
+                    <td>
+                        <a th:href="@{/shop/products/{id}(id=${line.productId})}" th:text="${line.productName}">Product</a>
+                    </td>
+                    <td class="text-end" th:text="${#numbers.formatDecimal(line.unitPrice, 1, 2)} + ' €'">0</td>
+                    <td>
+                        <form th:action="@{/cart/items/{id}/update(id=${line.itemId})}" method="post" class="d-flex gap-1">
+                            <input type="number" class="form-control form-control-sm" name="quantity"
+                                   th:value="${line.quantity}" min="0" th:max="${line.stock}"/>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">OK</button>
+                        </form>
+                        <small class="text-muted">Max: <span th:text="${line.stock}">0</span></small>
+                    </td>
+                    <td class="text-end" th:text="${#numbers.formatDecimal(line.lineTotal, 1, 2)} + ' €'">0</td>
+                    <td class="text-end">
+                        <form th:action="@{/cart/items/{id}/remove(id=${line.itemId})}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th colspan="3" class="text-end">Total</th>
+                    <th class="text-end" th:text="${#numbers.formatDecimal(cart.totalPrice, 1, 2)} + ' €'">0</th>
+                    <th></th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 justify-content-between">
+            <form th:action="@{/cart/clear}" method="post">
+                <button type="submit" class="btn btn-outline-danger"
+                        onclick="return confirm('Remove all items from cart?');">Clear cart</button>
+            </form>
+            <div class="d-flex gap-2">
+                <a class="btn btn-outline-primary" th:href="@{/shop/categories}">Continue shopping</a>
+                <a class="btn btn-success" th:href="@{/checkout}" sec:authorize="isAuthenticated()">Checkout</a>
+                <a class="btn btn-success" th:href="@{/login}" sec:authorize="!isAuthenticated()">Login to checkout</a>
+            </div>
+        </div>
+        <p class="text-muted small mt-2" sec:authorize="!isAuthenticated()">
+            You can shop anonymously; checkout requires login.
+        </p>
+    </div>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

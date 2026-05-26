@@ -1,0 +1,13 @@
+target/
+.git/
+.idea/
+*.iml
+.scannerwork/
+.sonar/
+application-local.properties
+.env
+.env.*
+!/.env.example
+api-tests.http
+run-sonar.ps1
+sonar-project.properties

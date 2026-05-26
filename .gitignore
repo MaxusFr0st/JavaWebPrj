@@ -1,5 +1,11 @@
 HELP.md
 target/
+.scannerwork/
+.sonar/
+application-local.properties
+.env
+.env.*
+!.env.example
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

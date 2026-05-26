@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Category form')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<div th:replace="~{admin/fragments/nav :: admin-nav}"></div>
+
+<main class="container" style="max-width: 560px;">
+    <h1 th:text="${editMode} ? 'Edit category' : 'New category'">Category</h1>
+    <form th:action="${editMode} ? @{/admin/categories/{id}(id=${categoryForm.id})} : @{/admin/categories}"
+          th:object="${categoryForm}" method="post" class="card card-body shadow-sm">
+        <div class="mb-3">
+            <label class="form-label" for="name">Name</label>
+            <input class="form-control" id="name" th:field="*{name}" required/>
+            <div class="text-danger small" th:errors="*{name}"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="description">Description</label>
+            <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit">Save</button>
+        <a class="btn btn-link" th:href="@{/admin/categories}">Cancel</a>
+    </form>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

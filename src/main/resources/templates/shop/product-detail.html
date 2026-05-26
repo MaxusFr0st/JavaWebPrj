@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Product')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+
+<main class="container" style="max-width: 720px;">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/shop/categories}">Categories</a></li>
+            <li class="breadcrumb-item">
+                <a th:href="@{/shop/categories/{id}/products(id=${product.category.id})}"
+                   th:text="${product.category.name}">Category</a>
+            </li>
+            <li class="breadcrumb-item active" th:text="${product.name}">Product</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h1 class="h3" th:text="${product.name}">Product name</h1>
+            <p class="text-muted mb-3" th:text="${product.description} ?: 'No description'"></p>
+            <p class="fs-4 mb-2">
+                <strong th:text="${#numbers.formatDecimal(product.price, 1,  2)} + ' €'">0.00 €</strong>
+            </p>
+            <p class="mb-4">
+                <span class="badge" th:classappend="${product.stock > 0} ? 'bg-success' : 'bg-danger'"
+                      th:text="${product.stock > 0} ? 'In stock: ' + ${product.stock} : 'Out of stock'">
+                    Stock
+                </span>
+            </p>
+
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+            <form th:if="${product.stock > 0}" th:action="@{/cart/add}" method="post" class="row g-2 align-items-end">
+                <input type="hidden" name="productId" th:value="${product.id}"/>
+                <div class="col-auto">
+                    <label class="form-label" for="quantity">Quantity</label>
+                    <input class="form-control" id="quantity" name="quantity" type="number"
+                           value="1" min="1" th:max="${product.stock}" required/>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary" type="submit">Add to cart</button>
+                </div>
+            </form>
+            <p th:if="${product.stock == 0}" class="text-danger mb-0">This product is out of stock.</p>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

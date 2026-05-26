@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Login')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+
+<main class="container" style="max-width: 420px;">
+    <h2 class="mb-3">Login</h2>
+
+    <div th:if="${param.error}" class="alert alert-danger">
+        Invalid username or password. Use your <strong>username</strong> (not email), or register again if the account is old.
+    </div>
+    <div th:if="${param.logout}" class="alert alert-success">You have been logged out.</div>
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <form th:action="@{/login}" method="post" class="card card-body shadow-sm">
+        <div class="mb-3">
+            <label class="form-label" for="username">Username</label>
+            <input class="form-control" id="username" name="username" type="text" required autofocus/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="password">Password</label>
+            <input class="form-control" id="password" name="password" type="password" required/>
+        </div>
+        <button class="btn btn-primary w-100" type="submit">Sign in</button>
+    </form>
+
+    <p class="mt-3 text-center">
+        No account? <a th:href="@{/register}">Register</a>
+    </p>
+    <p class="text-muted small text-center">
+        Admin (seeded at startup): <strong>admin</strong> / <strong>admin123</strong><br/>
+        Demo customer: <strong>customer</strong> / <strong>customer123</strong>
+    </p>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

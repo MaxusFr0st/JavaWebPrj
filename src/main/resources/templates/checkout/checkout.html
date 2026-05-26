@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Checkout')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+
+<main class="container" style="max-width: 800px;">
+    <h1 class="mb-4">Checkout</h1>
+
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">Order summary</div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between" th:each="line : ${cart.lines}">
+                <span th:text="${line.productName} + ' × ' + ${line.quantity}">Item</span>
+                <span th:text="${#numbers.formatDecimal(line.lineTotal, 1, 2)} + ' €'">0</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between fw-bold">
+                <span>Total</span>
+                <span th:text="${#numbers.formatDecimal(cart.totalPrice, 1, 2)} + ' €'">0</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Cash on delivery</h5>
+                    <p class="text-muted">Pay when your order is delivered.</p>
+                    <form th:action="@{/checkout/cod}" method="post">
+                        <button type="submit" class="btn btn-success w-100">Place order (COD)</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">PayPal</h5>
+                    <div th:if="${paypalEnabled}">
+                        <p class="text-muted small mb-2">Pay with PayPal Sandbox (test account).</p>
+                        <p th:if="${!paypalServerReady}" class="alert alert-warning small py-2">
+                            PayPal server is not connected — verify PayPal credentials are set in the
+                            deployment environment and restart the app.
+                        </p>
+                        <div id="paypal-button-container" class="paypal-button-container min-vh-0"></div>
+                        <p id="paypal-result-message" class="small mt-2"></p>
+                    </div>
+                    <div th:unless="${paypalEnabled}" class="alert alert-warning mb-0">
+                        PayPal is not configured. Set environment variables
+                        <code>PAYPAL_CLIENT_ID</code> and <code>PAYPAL_CLIENT_SECRET</code>
+                        from your
+                        <a href="https://developer.paypal.com/dashboard/applications/sandbox" target="_blank" rel="noopener">PayPal Developer Dashboard</a>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a class="btn btn-link mt-3 ps-0" th:href="@{/cart}">← Back to cart</a>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+
+<th:block th:if="${paypalEnabled}">
+    <script th:src="@{/js/paypal-checkout.js}"></script>
+    <script th:src="${paypalSdkUrl}"></script>
+    <script th:inline="javascript">
+        (function waitForSdk(attempt) {
+            if (typeof paypal !== 'undefined' && typeof initPayPalCheckout === 'function') {
+                initPayPalCheckout();
+                return;
+            }
+            if (attempt > 100) {
+                var el = document.getElementById('paypal-result-message');
+                if (el) {
+                    el.textContent = 'PayPal SDK did not load. Open F12 → Console for errors. Verify sandbox Client ID in application.properties.';
+                    el.className = 'text-danger small mt-2';
+                }
+                return;
+            }
+            setTimeout(function () { waitForSdk(attempt + 1); }, 50);
+        })(0);
+    </script>
+</th:block>
+</body>
+</html>

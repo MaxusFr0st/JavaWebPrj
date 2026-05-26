@@ -34,6 +34,10 @@ public class Order {
     @Column(nullable = false)
     private BigDecimal totalAmount;
 
+    /** PayPal REST order id (when paid with PayPal). */
+    @Column(name = "paypal_order_id")
+    private String paypalOrderId;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();

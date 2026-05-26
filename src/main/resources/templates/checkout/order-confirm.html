@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Order confirmed')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+
+<main class="container" style="max-width: 720px;">
+    <div class="alert alert-success">
+        <h1 class="h4 mb-2">Thank you — order placed!</h1>
+        <p class="mb-0">Order #<span th:text="${order.id}">1</span> ·
+            <span th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}">date</span></p>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <p><strong>Payment:</strong>
+                <span th:switch="${order.paymentMethod.name()}">
+                    <span th:case="'COD'">Cash on delivery</span>
+                    <span th:case="'PAYPAL'">PayPal</span>
+                    <span th:case="*" th:text="${order.paymentMethod}">—</span>
+                </span>
+            </p>
+            <p th:if="${order.paypalOrderId}" class="text-muted small mb-0">
+                PayPal reference: <span th:text="${order.paypalOrderId}"></span>
+            </p>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Product</th>
+            <th class="text-center">Qty</th>
+            <th class="text-end">Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${order.items}">
+            <td th:text="${item.product.name}">Product</td>
+            <td class="text-center" th:text="${item.quantity}">1</td>
+            <td class="text-end">
+                <span th:text="${item.quantity} + ' × '"></span>
+                <span th:text="${#numbers.formatDecimal(item.priceAtPurchase, 1, 2)} + ' €'"></span>
+            </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <th colspan="2" class="text-end">Total</th>
+            <th class="text-end" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)} + ' €'">0</th>
+        </tr>
+        </tfoot>
+    </table>
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary" th:href="@{/shop/categories}">Continue shopping</a>
+        <a class="btn btn-outline-secondary" th:href="@{/account/orders}">My orders</a>
+    </div>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

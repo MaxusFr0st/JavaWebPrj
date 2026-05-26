@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Login audit')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<div th:replace="~{admin/fragments/nav :: admin-nav}"></div>
+
+<main class="container">
+    <h1 class="mb-4">Login audit</h1>
+    <p class="text-muted">Who logged in, when, and from which IP address.</p>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr><th>Username</th><th>Login time</th><th>IP address</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${audits}">
+                <td th:text="${a.username}">user</td>
+                <td th:text="${#temporals.format(a.loginTime, 'dd.MM.yyyy HH:mm:ss')}">time</td>
+                <td th:text="${a.ipAddress}">IP</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <p th:if="${audits == null or #lists.isEmpty(audits)}" class="text-muted">No login records yet.</p>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>

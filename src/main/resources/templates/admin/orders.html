@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Admin orders')}"></head>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+<div th:replace="~{admin/fragments/nav :: admin-nav}"></div>
+
+<main class="container">
+    <h1 class="mb-4">All orders</h1>
+
+    <form th:action="@{/admin/orders}" method="get" th:object="${filter}" class="card card-body shadow-sm mb-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label" for="username">Customer (username)</label>
+                <input class="form-control" id="username" th:field="*{username}" list="username-list"
+                       placeholder="Leave empty for all"/>
+                <datalist id="username-list">
+                    <option th:each="u : ${usernames}" th:value="${u}"></option>
+                </datalist>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="fromDate">From date</label>
+                <input class="form-control" id="fromDate" th:field="*{fromDate}" type="date"/>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="toDate">To date</label>
+                <input class="form-control" id="toDate" th:field="*{toDate}" type="date"/>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <div th:if="${#lists.isEmpty(orders)}" class="alert alert-info">No orders match the filter.</div>
+
+    <div th:each="order : ${orders}" class="card shadow-sm mb-3">
+        <div class="card-header d-flex flex-wrap justify-content-between gap-2">
+            <div>
+                <strong>Order #<span th:text="${order.id}">1</span></strong>
+                · <span th:text="${order.user.username}">customer</span>
+                · <span th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}">date</span>
+            </div>
+            <div>
+                <span class="badge bg-secondary me-1" th:switch="${order.paymentMethod.name()}">
+                    <span th:case="'COD'">COD</span>
+                    <span th:case="'PAYPAL'">PayPal</span>
+                    <span th:case="*" th:text="${order.paymentMethod}">—</span>
+                </span>
+                <span class="badge bg-primary" th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)} + ' €'">0</span>
+            </div>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between" th:each="item : ${order.items}">
+                <span th:text="${item.product.name} + ' × ' + ${item.quantity}">item</span>
+                <span th:text="${#numbers.formatDecimal(item.priceAtPurchase, 1, 2)} + ' €'">0</span>
+            </li>
+        </ul>
+    </div>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+<div th:replace="~{layout :: scripts}"></div>
+</body>
+</html>
