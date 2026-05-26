@@ -26,6 +26,5 @@ public class RegisterForm {
     @NotBlank(message = "Confirm password is required")
     private String confirmPassword;
 
-    /** New registrations are always customers. */
     private Role role = Role.ROLE_USER;
 }

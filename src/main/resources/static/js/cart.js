@@ -1,6 +1,3 @@
-/**
- * Live cart badge via Server-Sent Events (async publish from server).
- */
 (function () {
     const badge = document.getElementById('cart-badge');
     if (!badge) return;

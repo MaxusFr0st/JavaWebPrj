@@ -7,9 +7,6 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-/**
- * LO6 listener: merges anonymous session cart into the logged-in user's cart.
- */
 @Component
 @RequiredArgsConstructor
 public class CartMergeOnLoginListener implements ApplicationListener<AuthenticationSuccessEvent> {

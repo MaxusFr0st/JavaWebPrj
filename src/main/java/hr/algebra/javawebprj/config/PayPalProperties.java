@@ -3,6 +3,7 @@ package hr.algebra.javawebprj.config;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
 @ConfigurationProperties(prefix = "paypal")
 @Getter
 @Setter
@@ -10,7 +11,6 @@ public class PayPalProperties {
 
     private String clientId = "";
     private String clientSecret = "";
-    /** sandbox or live */
     private String mode = "sandbox";
     private String currency = "EUR";
 
@@ -30,7 +30,6 @@ public class PayPalProperties {
         this.currency = currency == null ? "EUR" : currency.trim().toUpperCase();
     }
 
-    /** True when real PayPal sandbox/live credentials are set (not tutorial placeholders). */
     public boolean isConfigured() {
         return hasValidClientId() && hasValidClientSecret();
     }
@@ -40,10 +39,19 @@ public class PayPalProperties {
             return false;
         }
         String lower = clientId.toLowerCase();
-        return !lower.startsWith("replace")
-                && !lower.contains("your_client")
-                && !lower.contains("placeholder")
-                && !lower.contains("changeme");
+        if (lower.startsWith("replace")) {
+            return false;
+        }
+        if (lower.contains("your_client")) {
+            return false;
+        }
+        if (lower.contains("placeholder")) {
+            return false;
+        }
+        if (lower.contains("changeme")) {
+            return false;
+        }
+        return true;
     }
 
     public boolean hasValidClientSecret() {
@@ -51,9 +59,18 @@ public class PayPalProperties {
             return false;
         }
         String lower = clientSecret.toLowerCase();
-        return !lower.startsWith("replace")
-                && !lower.contains("your_secret")
-                && !lower.contains("placeholder")
-                && !lower.contains("changeme");
+        if (lower.startsWith("replace")) {
+            return false;
+        }
+        if (lower.contains("your_secret")) {
+            return false;
+        }
+        if (lower.contains("placeholder")) {
+            return false;
+        }
+        if (lower.contains("changeme")) {
+            return false;
+        }
+        return true;
     }
 }

@@ -7,23 +7,17 @@ import hr.algebra.javawebprj.model.User;
 import hr.algebra.javawebprj.repository.CategoryRepository;
 import hr.algebra.javawebprj.repository.ProductRepository;
 import hr.algebra.javawebprj.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.annotation.Order;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 
-/**
- * Seeds demo customer + sample catalog (categories/products).
- * Admin account is created by {@link AdminAccountSeeder}.
- */
 @Configuration
-@RequiredArgsConstructor
 public class DataInitializer {
 
     private final UserRepository userRepository;
@@ -39,6 +33,18 @@ public class DataInitializer {
 
     @Value("${app.seed.customer.email:customer@shop.local}")
     private String customerEmail;
+
+    public DataInitializer(
+            UserRepository userRepository,
+            CategoryRepository categoryRepository,
+            ProductRepository productRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Bean
     @Order(2)

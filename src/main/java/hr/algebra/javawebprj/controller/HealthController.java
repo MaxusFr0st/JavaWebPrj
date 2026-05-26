@@ -6,9 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-/**
- * Lightweight liveness endpoint for Railway healthchecks (no auth, no DB).
- */
 @RestController
 public class HealthController {
 

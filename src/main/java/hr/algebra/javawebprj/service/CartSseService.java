@@ -31,7 +31,10 @@ public class CartSseService {
     }
 
     public void publishCount(String sessionId, int count) {
-        List<SseEmitter> emitters = emittersBySession.getOrDefault(sessionId, new CopyOnWriteArrayList<>());
+        CopyOnWriteArrayList<SseEmitter> emitters = emittersBySession.get(sessionId);
+        if (emitters == null) {
+            return;
+        }
         for (SseEmitter emitter : emitters) {
             sendCount(emitter, count);
         }

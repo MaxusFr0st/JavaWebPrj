@@ -37,8 +37,6 @@ public class AdminController {
         return "admin/dashboard";
     }
 
-    // --- Categories ---
-
     @GetMapping("/categories")
     public String categories(Model model) {
         model.addAttribute(MvcConstants.ATTR_CATEGORIES, categoryService.findAll());
@@ -103,8 +101,6 @@ public class AdminController {
         }
         return MvcConstants.REDIRECT_ADMIN_CATEGORIES;
     }
-
-    // --- Products ---
 
     @GetMapping("/products")
     public String products(Model model) {
@@ -174,15 +170,11 @@ public class AdminController {
         return MvcConstants.REDIRECT_ADMIN_PRODUCTS;
     }
 
-    // --- Login audit ---
-
     @GetMapping("/login-audit")
     public String loginAudit(Model model) {
         model.addAttribute("audits", loginAuditService.findAllNewestFirst());
         return "admin/login-audit";
     }
-
-    // --- Orders ---
 
     @GetMapping("/orders")
     public String orders(@ModelAttribute("filter") OrderFilterForm filter, Model model) {

@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -22,7 +24,10 @@ public class AdminOrderService {
 
     @Transactional(readOnly = true)
     public List<Order> search(OrderFilterForm filter) {
-        String username = filter.getUsername() == null ? "" : filter.getUsername().trim();
+        String username = "";
+        if (filter.getUsername() != null) {
+            username = filter.getUsername().trim();
+        }
         LocalDateTime from = toStart(filter.getFromDate());
         LocalDateTime to = toEnd(filter.getToDate());
         return orderRepository.searchAdmin(username, from, to);
@@ -30,18 +35,23 @@ public class AdminOrderService {
 
     @Transactional(readOnly = true)
     public List<String> allUsernames() {
-        return userRepository.findAll().stream()
-                .map(u -> u.getUsername())
-                .sorted()
-                .distinct()
-                .toList();
+        List<String> names = new ArrayList<>();
+        userRepository.findAll().forEach(u -> names.add(u.getUsername()));
+        Collections.sort(names);
+        return names;
     }
 
     private static LocalDateTime toStart(LocalDate date) {
-        return date == null ? LocalDateTime.of(1970, 1, 1, 0, 0) : date.atStartOfDay();
+        if (date == null) {
+            return LocalDateTime.of(1970, 1, 1, 0, 0);
+        }
+        return date.atStartOfDay();
     }
 
     private static LocalDateTime toEnd(LocalDate date) {
-        return date == null ? LocalDateTime.of(2099, 12, 31, 23, 59, 59) : date.atTime(LocalTime.MAX);
+        if (date == null) {
+            return LocalDateTime.of(2099, 12, 31, 23, 59, 59);
+        }
+        return date.atTime(LocalTime.MAX);
     }
 }

@@ -34,7 +34,8 @@ public class CartController {
     @GetMapping("/count")
     @ResponseBody
     public Map<String, Integer> itemCount(HttpSession session) {
-        return Map.of("count", cartService.getTotalItemCount(session));
+        int count = cartService.getTotalItemCount(session);
+        return Map.of("count", count);
     }
 
     @PostMapping("/add")
@@ -46,7 +47,7 @@ public class CartController {
     ) {
         try {
             cartService.addProduct(session, productId, quantity);
-            publishCart(session);
+            cartSseService.publishCount(session.getId(), cartService.getTotalItemCount(session));
             redirectAttributes.addFlashAttribute(MvcConstants.FLASH_SUCCESS, "Product added to cart.");
             return MvcConstants.REDIRECT_CART;
         } catch (IllegalArgumentException ex) {
@@ -64,7 +65,7 @@ public class CartController {
     ) {
         try {
             cartService.updateItemQuantity(session, itemId, quantity);
-            publishCart(session);
+            cartSseService.publishCount(session.getId(), cartService.getTotalItemCount(session));
             redirectAttributes.addFlashAttribute(MvcConstants.FLASH_SUCCESS, "Cart updated.");
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute(MvcConstants.FLASH_ERROR, ex.getMessage());
@@ -79,7 +80,7 @@ public class CartController {
             RedirectAttributes redirectAttributes
     ) {
         cartService.removeItem(session, itemId);
-        publishCart(session);
+        cartSseService.publishCount(session.getId(), cartService.getTotalItemCount(session));
         redirectAttributes.addFlashAttribute(MvcConstants.FLASH_SUCCESS, "Item removed.");
         return MvcConstants.REDIRECT_CART;
     }
@@ -87,12 +88,8 @@ public class CartController {
     @PostMapping("/clear")
     public String clear(HttpSession session, RedirectAttributes redirectAttributes) {
         cartService.clearCart(session);
-        publishCart(session);
+        cartSseService.publishCount(session.getId(), cartService.getTotalItemCount(session));
         redirectAttributes.addFlashAttribute(MvcConstants.FLASH_SUCCESS, "Cart cleared.");
         return MvcConstants.REDIRECT_CART;
-    }
-
-    private void publishCart(HttpSession session) {
-        cartSseService.publishCount(session.getId(), cartService.getTotalItemCount(session));
     }
 }

@@ -1,8 +1,3 @@
-# SonarQube scan — uses JDK 25 and correct Maven arguments for PowerShell
-# Usage:
-#   $env:SONAR_TOKEN = "squ_your_token"
-#   .\run-sonar.ps1
-
 $ErrorActionPreference = "Stop"
 
 $jdk25 = "C:\Users\maxmo\.jdks\ms-25.0.3"

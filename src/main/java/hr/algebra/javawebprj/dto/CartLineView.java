@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Getter
 @Builder
 public class CartLineView {
+
     private final Long itemId;
     private final Long productId;
     private final String productName;

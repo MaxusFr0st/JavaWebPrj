@@ -8,12 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
 
-/**
- * Verifies PayPal REST credentials by requesting an OAuth token (same check the server SDK uses).
- */
 public final class PayPalOAuthVerifier {
 
-    private static final HttpClient HTTP = HttpClient.newBuilder()
+    private static final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(15))
             .build();
 
@@ -25,12 +22,15 @@ public final class PayPalOAuthVerifier {
             return "credentials not configured";
         }
         boolean live = "live".equalsIgnoreCase(properties.getMode());
-        String tokenUrl = live
-                ? "https://api-m.paypal.com/v1/oauth2/token"
-                : "https://api-m.sandbox.paypal.com/v1/oauth2/token";
+        String tokenUrl;
+        if (live) {
+            tokenUrl = "https://api-m.paypal.com/v1/oauth2/token";
+        } else {
+            tokenUrl = "https://api-m.sandbox.paypal.com/v1/oauth2/token";
+        }
 
-        String basic = Base64.getEncoder().encodeToString(
-                (properties.getClientId() + ":" + properties.getClientSecret()).getBytes(StandardCharsets.UTF_8));
+        String creds = properties.getClientId() + ":" + properties.getClientSecret();
+        String basic = Base64.getEncoder().encodeToString(creds.getBytes(StandardCharsets.UTF_8));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(tokenUrl))
@@ -43,7 +43,7 @@ public final class PayPalOAuthVerifier {
                 .build();
 
         try {
-            HttpResponse<String> response = HTTP.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
                 return null;
             }

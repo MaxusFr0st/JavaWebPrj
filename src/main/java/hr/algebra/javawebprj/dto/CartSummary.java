@@ -9,6 +9,7 @@ import java.util.List;
 @Getter
 @Builder
 public class CartSummary {
+
     private final List<CartLineView> lines;
     private final int totalItems;
     private final BigDecimal totalPrice;

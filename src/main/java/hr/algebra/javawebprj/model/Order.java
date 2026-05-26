@@ -2,6 +2,7 @@ package hr.algebra.javawebprj.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,7 +35,6 @@ public class Order {
     @Column(nullable = false)
     private BigDecimal totalAmount;
 
-    /** PayPal REST order id (when paid with PayPal). */
     @Column(name = "paypal_order_id")
     private String paypalOrderId;
 

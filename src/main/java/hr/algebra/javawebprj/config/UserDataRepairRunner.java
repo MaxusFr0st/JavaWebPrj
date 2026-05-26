@@ -4,7 +4,6 @@ import hr.algebra.javawebprj.model.Role;
 import hr.algebra.javawebprj.model.User;
 import hr.algebra.javawebprj.repository.UserRepository;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -14,12 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Fixes users created during early development (wrong role string or plain-text password).
- */
 @Component
 @Order(0)
-@RequiredArgsConstructor
 @Slf4j
 @ConditionalOnProperty(name = "app.seed.users.enabled", havingValue = "true")
 public class UserDataRepairRunner implements CommandLineRunner {
@@ -33,6 +28,16 @@ public class UserDataRepairRunner implements CommandLineRunner {
 
     @Value("${app.seed.customer.password:}")
     private String customerPassword;
+
+    public UserDataRepairRunner(
+            EntityManager entityManager,
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        this.entityManager = entityManager;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     @Transactional
@@ -54,7 +59,6 @@ public class UserDataRepairRunner implements CommandLineRunner {
         }
     }
 
-    /** Ensures seeded demo customer always has a BCrypt password from configuration. */
     private void fixDemoCustomerPassword() {
         userRepository.findByUsername(customerUsername).ifPresent(user -> {
             if (!isBcrypt(user.getPassword())) {

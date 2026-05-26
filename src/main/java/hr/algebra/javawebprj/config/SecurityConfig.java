@@ -2,7 +2,6 @@ package hr.algebra.javawebprj.config;
 
 import hr.algebra.javawebprj.security.JwtAuthFilter;
 import hr.algebra.javawebprj.web.MvcConstants;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -17,14 +16,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final Environment environment;
+
+    public SecurityConfig(UserDetailsService userDetailsService, Environment environment) {
+        this.userDetailsService = userDetailsService;
+        this.environment = environment;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(
@@ -39,7 +43,6 @@ public class SecurityConfig {
                     .httpStrictTransportSecurity(hsts -> hsts
                             .includeSubDomains(true)
                             .maxAgeInSeconds(31_536_000))
-                    // PayPal JS SDK + buttons need scripts, frames, and XHR to PayPal domains
                     .contentSecurityPolicy(csp -> csp.policyDirectives(
                             "default-src 'self'; "
                                     + "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net "
@@ -82,7 +85,7 @@ public class SecurityConfig {
                 )
                 .userDetailsService(userDetailsService);
 
-        http.addFilterBefore(jwtAuthFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

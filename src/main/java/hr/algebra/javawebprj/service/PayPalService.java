@@ -1,12 +1,11 @@
 package hr.algebra.javawebprj.service;
 
 import com.paypal.sdk.PaypalServerSdkClient;
-import com.paypal.sdk.controllers.OrdersController;
 import com.paypal.sdk.http.response.ApiResponse;
 import com.paypal.sdk.models.AmountWithBreakdown;
+import com.paypal.sdk.models.CaptureOrderInput;
 import com.paypal.sdk.models.CheckoutPaymentIntent;
 import com.paypal.sdk.models.CreateOrderInput;
-import com.paypal.sdk.models.CaptureOrderInput;
 import com.paypal.sdk.models.OrderRequest;
 import com.paypal.sdk.models.PurchaseUnitRequest;
 import hr.algebra.javawebprj.config.PayPalProperties;
@@ -27,7 +26,6 @@ public class PayPalService {
     private final ObjectProvider<PaypalServerSdkClient> paypalClientProvider;
     private final PayPalProperties payPalProperties;
 
-    /** True when credentials exist — used to show PayPal JS buttons (client id). */
     public boolean isEnabled() {
         return payPalProperties.isConfigured();
     }
@@ -44,10 +42,6 @@ public class PayPalService {
         return payPalProperties.getCurrency();
     }
 
-    /**
-     * PayPal JS SDK URL — built server-side so client-id is not mangled by the template engine.
-     * A bad URL returns HTTP 400 from www.paypal.com/sdk/js (browser: "Failed to load resource").
-     */
     public String buildJsSdkUrl() {
         return UriComponentsBuilder
                 .fromUriString("https://www.paypal.com/sdk/js")
@@ -58,9 +52,6 @@ public class PayPalService {
                 .toUriString();
     }
 
-    /**
-     * Creates a PayPal order for the current cart total (server-side amount — do not trust the browser).
-     */
     public com.paypal.sdk.models.Order createOrder(CartSummary cart) {
         PaypalServerSdkClient client = requireClient();
         String amount = formatAmount(cart.getTotalPrice());
@@ -98,7 +89,10 @@ public class PayPalService {
     }
 
     private static String toUserMessage(String action, Exception e) {
-        String detail = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+        String detail = e.getMessage();
+        if (detail == null) {
+            detail = e.getClass().getSimpleName();
+        }
         if (detail.contains("OAuth token") || detail.contains("not authorized") || detail.contains("ClientCredentialsAuth")) {
             return "PayPal " + action + " failed: invalid server credentials. "
                     + "The Client ID can work in the browser while the Secret is wrong. "

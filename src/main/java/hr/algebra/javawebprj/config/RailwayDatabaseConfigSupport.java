@@ -14,27 +14,28 @@ final class RailwayDatabaseConfigSupport {
 
     private static final String SOURCE_NAME = "railwayDatabaseUrl";
 
-    private RailwayDatabaseConfigSupport() {}
+    private RailwayDatabaseConfigSupport() {
+    }
 
     static void applyIfNeeded(ConfigurableEnvironment environment) {
         if (hasJdbcUrl(environment)) {
             return;
         }
 
-        Map<String, Object> properties = new HashMap<>();
+        Map<String, Object> props = new HashMap<>();
         String postgresUrl = resolvePostgresUrl(environment);
         if (isUsablePostgresUrl(postgresUrl)) {
-            applyFromUrl(properties, postgresUrl);
+            applyFromUrl(props, postgresUrl);
         } else {
-            applyFromPgVars(environment, properties);
+            applyFromPgVars(environment, props);
         }
 
-        if (!properties.containsKey("spring.datasource.url")) {
+        if (!props.containsKey("spring.datasource.url")) {
             logMissingDatabaseConfig(environment);
             return;
         }
 
-        environment.getPropertySources().addFirst(new MapPropertySource(SOURCE_NAME, properties));
+        environment.getPropertySources().addFirst(new MapPropertySource(SOURCE_NAME, props));
     }
 
     private static String resolvePostgresUrl(ConfigurableEnvironment environment) {
@@ -198,5 +199,6 @@ final class RailwayDatabaseConfigSupport {
         return value != null && !value.isBlank();
     }
 
-    record ParsedPostgres(String jdbcUrl, String username, String password) {}
+    record ParsedPostgres(String jdbcUrl, String username, String password) {
+    }
 }

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,9 +22,11 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductDto> findAllDto() {
-        return productRepository.findAllWithCategory().stream()
-                .map(ProductDto::from)
-                .toList();
+        List<ProductDto> result = new ArrayList<>();
+        for (Product p : productRepository.findAllWithCategory()) {
+            result.add(ProductDto.from(p));
+        }
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -53,9 +56,13 @@ public class ProductService {
     @Transactional
     public Product save(ProductForm form) {
         Category category = categoryService.findById(form.getCategoryId());
+        String desc = form.getDescription();
+        if (desc != null) {
+            desc = desc.trim();
+        }
         Product product = Product.builder()
                 .name(form.getName().trim())
-                .description(form.getDescription() != null ? form.getDescription().trim() : null)
+                .description(desc)
                 .price(form.getPrice())
                 .stock(form.getStock())
                 .category(category)
@@ -69,7 +76,11 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + id));
         Category category = categoryService.findById(form.getCategoryId());
         product.setName(form.getName().trim());
-        product.setDescription(form.getDescription() != null ? form.getDescription().trim() : null);
+        String desc = form.getDescription();
+        if (desc != null) {
+            desc = desc.trim();
+        }
+        product.setDescription(desc);
         product.setPrice(form.getPrice());
         product.setStock(form.getStock());
         product.setCategory(category);

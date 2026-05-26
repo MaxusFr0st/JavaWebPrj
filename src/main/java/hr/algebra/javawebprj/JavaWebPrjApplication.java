@@ -15,5 +15,4 @@ public class JavaWebPrjApplication {
         app.addInitializers(new RailwayDatabaseEnvironmentInitializer());
         app.run(args);
     }
-
 }

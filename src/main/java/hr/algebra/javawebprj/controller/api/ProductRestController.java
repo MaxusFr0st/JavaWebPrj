@@ -24,11 +24,10 @@ public class ProductRestController {
             @RequestParam(required = false) Long categoryId
     ) {
         if (categoryId != null) {
-            return ResponseEntity.ok(
-                    productService.findByCategoryId(categoryId).stream()
-                            .map(ProductDto::from)
-                            .toList()
-            );
+            List<ProductDto> list = productService.findByCategoryId(categoryId).stream()
+                    .map(ProductDto::from)
+                    .toList();
+            return ResponseEntity.ok(list);
         }
         return ResponseEntity.ok(productService.findAllDto());
     }

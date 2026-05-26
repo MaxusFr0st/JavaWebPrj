@@ -1,6 +1,3 @@
-/**
- * PayPal Standard Integration — waits for SDK, then renders buttons.
- */
 window.initPayPalCheckout = function initPayPalCheckout() {
     const container = document.getElementById('paypal-button-container');
     if (!container) {

@@ -16,10 +16,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Public registration always creates a customer ({@link Role#ROLE_USER}).
-     * Administrators are created only at startup via {@link hr.algebra.javawebprj.config.AdminAccountSeeder}.
-     */
     @Transactional
     public User register(RegisterForm form) {
         if (!form.getPassword().equals(form.getConfirmPassword())) {

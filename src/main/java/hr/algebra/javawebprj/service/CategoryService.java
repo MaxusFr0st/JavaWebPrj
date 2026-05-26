@@ -31,9 +31,13 @@ public class CategoryService {
 
     @Transactional
     public Category save(CategoryForm form) {
+        String desc = form.getDescription();
+        if (desc != null) {
+            desc = desc.trim();
+        }
         Category category = Category.builder()
                 .name(form.getName().trim())
-                .description(form.getDescription() != null ? form.getDescription().trim() : null)
+                .description(desc)
                 .build();
         return categoryRepository.save(category);
     }
@@ -43,7 +47,11 @@ public class CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + id));
         category.setName(form.getName().trim());
-        category.setDescription(form.getDescription() != null ? form.getDescription().trim() : null);
+        String desc = form.getDescription();
+        if (desc != null) {
+            desc = desc.trim();
+        }
+        category.setDescription(desc);
         return categoryRepository.save(category);
     }
 

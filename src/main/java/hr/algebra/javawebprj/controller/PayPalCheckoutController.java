@@ -42,8 +42,11 @@ public class PayPalCheckoutController {
             com.paypal.sdk.models.Order paypalOrder = payPalService.createOrder(cart);
             return ResponseEntity.ok(Map.of("id", paypalOrder.getId()));
         } catch (IllegalStateException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(errorBody(ex.getMessage() != null ? ex.getMessage() : "PayPal error"));
+            String msg = ex.getMessage();
+            if (msg == null) {
+                msg = "PayPal error";
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody(msg));
         }
     }
 
@@ -58,7 +61,10 @@ public class PayPalCheckoutController {
         }
         try {
             com.paypal.sdk.models.Order captured = payPalService.captureOrder(paypalOrderId);
-            String status = captured.getStatus() != null ? captured.getStatus().toString() : "";
+            String status = "";
+            if (captured.getStatus() != null) {
+                status = captured.getStatus().toString();
+            }
 
             if (!"COMPLETED".equalsIgnoreCase(status)) {
                 Map<String, Object> body = new HashMap<>();
@@ -68,16 +74,19 @@ public class PayPalCheckoutController {
             }
 
             Order shopOrder = orderService.placeOrder(session, PaymentMethod.PAYPAL, paypalOrderId);
-            return ResponseEntity.ok(Map.of(
-                    "shopOrderId", shopOrder.getId(),
-                    "status", status,
-                    "redirectUrl", "/checkout/confirm/" + shopOrder.getId()
-            ));
+            Map<String, Object> ok = new HashMap<>();
+            ok.put("shopOrderId", shopOrder.getId());
+            ok.put("status", status);
+            ok.put("redirectUrl", "/checkout/confirm/" + shopOrder.getId());
+            return ResponseEntity.ok(ok);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(errorBody(ex.getMessage()));
         } catch (IllegalStateException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(errorBody(ex.getMessage() != null ? ex.getMessage() : "PayPal error"));
+            String msg = ex.getMessage();
+            if (msg == null) {
+                msg = "PayPal error";
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody(msg));
         }
     }
 

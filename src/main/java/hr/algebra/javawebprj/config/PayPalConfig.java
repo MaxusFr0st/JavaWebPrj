@@ -14,10 +14,6 @@ public class PayPalConfig {
 
     private final PayPalProperties payPalProperties;
 
-    /**
-     * Created only when paypal.client-id and paypal.client-secret are set in properties.
-     * Do not use @ConditionalOnExpression("@payPalProperties...") — that runs before the properties bean exists.
-     */
     @Bean
     @ConditionalOnProperty(prefix = "paypal", name = "client-id")
     @ConditionalOnProperty(prefix = "paypal", name = "client-secret")
@@ -26,7 +22,6 @@ public class PayPalConfig {
                 ? Environment.PRODUCTION
                 : Environment.SANDBOX;
 
-        // Do not enable request/response header logging — it can break OAuth (Authorization header redaction).
         return new PaypalServerSdkClient.Builder()
                 .environment(environment)
                 .clientCredentialsAuth(new ClientCredentialsAuthModel.Builder(

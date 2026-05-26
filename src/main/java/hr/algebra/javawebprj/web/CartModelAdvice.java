@@ -16,7 +16,7 @@ public class CartModelAdvice {
     public int cartItemCount(HttpSession session) {
         try {
             return cartService.getTotalItemCount(session);
-        } catch (Exception _) {
+        } catch (Exception e) {
             return 0;
         }
     }

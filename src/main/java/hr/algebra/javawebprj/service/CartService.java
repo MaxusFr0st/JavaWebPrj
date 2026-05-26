@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -36,9 +37,12 @@ public class CartService {
 
     @Transactional(readOnly = true)
     public int getTotalItemCount(HttpSession session) {
-        return loadCartWithItems(session).getItems().stream()
-                .mapToInt(CartItem::getQuantity)
-                .sum();
+        Cart cart = loadCartWithItems(session);
+        int total = 0;
+        for (CartItem item : cart.getItems()) {
+            total += item.getQuantity();
+        }
+        return total;
     }
 
     @Transactional
@@ -103,9 +107,6 @@ public class CartService {
         cartRepository.save(cart);
     }
 
-    /**
-     * After login, anonymous session cart is merged into the user's persistent cart.
-     */
     @Transactional
     public void mergeSessionCartOnLogin(String sessionId, String username) {
         Optional<User> userOpt = userRepository.findByUsername(username);
@@ -142,13 +143,20 @@ public class CartService {
         int stock = sourceItem.getProduct().getStock();
 
         if (existing.isPresent()) {
-            int merged = Math.min(existing.get().getQuantity() + qty, stock);
+            int merged = existing.get().getQuantity() + qty;
+            if (merged > stock) {
+                merged = stock;
+            }
             existing.get().setQuantity(merged);
         } else {
+            int useQty = qty;
+            if (useQty > stock) {
+                useQty = stock;
+            }
             CartItem copy = CartItem.builder()
                     .cart(target)
                     .product(sourceItem.getProduct())
-                    .quantity(Math.min(qty, stock))
+                    .quantity(useQty)
                     .build();
             target.getItems().add(copy);
         }
@@ -158,18 +166,24 @@ public class CartService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
             User user = userRepository.findByUsername(auth.getName()).orElseThrow();
-            return cartRepository.findWithItemsByUserId(user.getId())
-                    .orElseGet(() -> cartRepository.save(Cart.builder()
-                            .user(user)
-                            .sessionId(session.getId())
-                            .items(new java.util.ArrayList<>())
-                            .build()));
+            Optional<Cart> found = cartRepository.findWithItemsByUserId(user.getId());
+            if (found.isPresent()) {
+                return found.get();
+            }
+            return cartRepository.save(Cart.builder()
+                    .user(user)
+                    .sessionId(session.getId())
+                    .items(new ArrayList<>())
+                    .build());
         }
-        return cartRepository.findWithItemsBySessionId(session.getId())
-                .orElseGet(() -> cartRepository.save(Cart.builder()
-                        .sessionId(session.getId())
-                        .items(new java.util.ArrayList<>())
-                        .build()));
+        Optional<Cart> found = cartRepository.findWithItemsBySessionId(session.getId());
+        if (found.isPresent()) {
+            return found.get();
+        }
+        return cartRepository.save(Cart.builder()
+                .sessionId(session.getId())
+                .items(new ArrayList<>())
+                .build());
     }
 
     private Cart loadCartWithItems(HttpSession session) {
@@ -184,32 +198,37 @@ public class CartService {
     }
 
     private CartItem findItemInCart(Cart cart, Long itemId) {
-        return cart.getItems().stream()
-                .filter(i -> i.getId().equals(itemId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Cart item not found"));
+        for (CartItem item : cart.getItems()) {
+            if (item.getId().equals(itemId)) {
+                return item;
+            }
+        }
+        throw new IllegalArgumentException("Cart item not found");
     }
 
     private CartSummary toSummary(Cart cart) {
-        List<CartLineView> lines = cart.getItems().stream()
-                .map(item -> CartLineView.builder()
-                        .itemId(item.getId())
-                        .productId(item.getProduct().getId())
-                        .productName(item.getProduct().getName())
-                        .unitPrice(item.getProduct().getPrice())
-                        .quantity(item.getQuantity())
-                        .stock(item.getProduct().getStock())
-                        .lineTotal(item.getProduct().getPrice()
-                                .multiply(BigDecimal.valueOf(item.getQuantity())))
-                        .build())
-                .sorted(Comparator.comparing(CartLineView::getProductName))
-                .toList();
+        List<CartLineView> lines = new ArrayList<>();
+        for (CartItem item : cart.getItems()) {
+            BigDecimal lineTotal = item.getProduct().getPrice()
+                    .multiply(BigDecimal.valueOf(item.getQuantity()));
+            lines.add(CartLineView.builder()
+                    .itemId(item.getId())
+                    .productId(item.getProduct().getId())
+                    .productName(item.getProduct().getName())
+                    .unitPrice(item.getProduct().getPrice())
+                    .quantity(item.getQuantity())
+                    .stock(item.getProduct().getStock())
+                    .lineTotal(lineTotal)
+                    .build());
+        }
+        lines.sort(Comparator.comparing(CartLineView::getProductName));
 
-        BigDecimal total = lines.stream()
-                .map(CartLineView::getLineTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        int count = lines.stream().mapToInt(CartLineView::getQuantity).sum();
+        BigDecimal total = BigDecimal.ZERO;
+        int count = 0;
+        for (CartLineView line : lines) {
+            total = total.add(line.getLineTotal());
+            count += line.getQuantity();
+        }
 
         return CartSummary.builder()
                 .lines(lines)

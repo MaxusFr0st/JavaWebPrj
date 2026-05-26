@@ -18,9 +18,13 @@ public class AuditService {
 
     @Async
     public void recordLoginAsync(String username, String ipAddress) {
+        String ip = ipAddress;
+        if (ip == null || ip.isBlank()) {
+            ip = "UNKNOWN";
+        }
         LoginAudit audit = LoginAudit.builder()
                 .username(username)
-                .ipAddress(ipAddress == null || ipAddress.isBlank() ? "UNKNOWN" : ipAddress)
+                .ipAddress(ip)
                 .loginTime(LocalDateTime.now())
                 .build();
         loginAuditRepository.save(audit);

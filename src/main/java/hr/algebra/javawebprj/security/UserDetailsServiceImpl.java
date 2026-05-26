@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,8 +25,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("Empty username");
         }
 
-        User user = userRepository.findByUsername(login)
-                .or(() -> userRepository.findByEmail(login))
+        Optional<User> byName = userRepository.findByUsername(login);
+        Optional<User> byEmail = userRepository.findByEmail(login);
+        User user = byName.or(() -> byEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + login));
 
         if (user.getRole() == null) {
