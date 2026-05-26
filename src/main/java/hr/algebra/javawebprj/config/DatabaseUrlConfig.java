@@ -1,7 +1,7 @@
 package hr.algebra.javawebprj.config;
 
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.autoconfigure.jdbc.DataSourcePropertiesCustomizer;
+import org.springframework.boot.jdbc.DataSourceProperties;
+import org.springframework.boot.jdbc.DataSourcePropertiesCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
