@@ -82,7 +82,7 @@ public class PayPalService {
             ApiResponse<com.paypal.sdk.models.Order> response = client.getOrdersController().createOrder(input);
             return response.getResult();
         } catch (Exception e) {
-            throw new IllegalStateException("PayPal create order failed: " + e.getMessage(), e);
+            throw new IllegalStateException(toUserMessage("create order", e), e);
         }
     }
 
@@ -93,8 +93,19 @@ public class PayPalService {
             ApiResponse<com.paypal.sdk.models.Order> response = client.getOrdersController().captureOrder(input);
             return response.getResult();
         } catch (Exception e) {
-            throw new IllegalStateException("PayPal capture failed: " + e.getMessage(), e);
+            throw new IllegalStateException(toUserMessage("capture", e), e);
         }
+    }
+
+    private static String toUserMessage(String action, Exception e) {
+        String detail = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+        if (detail.contains("OAuth token") || detail.contains("not authorized") || detail.contains("ClientCredentialsAuth")) {
+            return "PayPal " + action + " failed: invalid server credentials. "
+                    + "The Client ID can work in the browser while the Secret is wrong. "
+                    + "On Railway, set PAYPAL_CLIENT_SECRET to the Secret from the same Sandbox app as PAYPAL_CLIENT_ID "
+                    + "(developer.paypal.com → your app → Sandbox). PAYPAL_MODE must be sandbox for sandbox credentials.";
+        }
+        return "PayPal " + action + " failed: " + detail;
     }
 
     private PaypalServerSdkClient requireClient() {

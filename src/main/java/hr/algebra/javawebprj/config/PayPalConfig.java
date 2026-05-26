@@ -4,7 +4,6 @@ import com.paypal.sdk.Environment;
 import com.paypal.sdk.PaypalServerSdkClient;
 import com.paypal.sdk.authentication.ClientCredentialsAuthModel;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.event.Level;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,13 +26,13 @@ public class PayPalConfig {
                 ? Environment.PRODUCTION
                 : Environment.SANDBOX;
 
+        // Do not enable request/response header logging — it can break OAuth (Authorization header redaction).
         return new PaypalServerSdkClient.Builder()
                 .environment(environment)
                 .clientCredentialsAuth(new ClientCredentialsAuthModel.Builder(
                         payPalProperties.getClientId(),
                         payPalProperties.getClientSecret()
                 ).build())
-                .loggingConfig(builder -> builder.level(Level.INFO))
                 .build();
     }
 }

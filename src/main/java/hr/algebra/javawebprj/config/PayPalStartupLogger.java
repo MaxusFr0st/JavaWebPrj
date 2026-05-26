@@ -35,6 +35,13 @@ public class PayPalStartupLogger implements CommandLineRunner {
                 prefix, id.length(), payPalProperties.getMode(), payPalProperties.getCurrency(), serverUp ? "OK" : "MISSING");
         if (!serverUp) {
             log.warn("PayPal: server SDK bean missing — check PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET on Railway, then redeploy.");
+            return;
+        }
+        String oauthError = PayPalOAuthVerifier.verify(payPalProperties);
+        if (oauthError != null) {
+            log.error("PayPal: {}", oauthError);
+        } else {
+            log.info("PayPal: OAuth token OK for {} mode", payPalProperties.getMode());
         }
     }
 }
